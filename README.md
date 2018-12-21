@@ -139,15 +139,14 @@ class MyComponent extends React.Component {
   box: object // box
 }
 ```
+This project bundled using [Webpack](https://webpack.js.org/)
 
-If you want to help on development, this project using [Webpack](https://webpack.js.org/)
-I use `webpack-dev-server` for development, you can clone / fork this `repo`, then install all dependencies:
-
+If you want to help on development, you can clone / fork this `repo`, then install all dependencies:
 ```bash
 npm install
 ```
 
-and then simply run the dev server:
+I use `webpack-dev-server` for development, simply run the dev server:
 ```bash
 npm start // in your browser open http://localhost:3001
 ```
