@@ -140,8 +140,8 @@ class MyComponent extends React.Component {
 }
 ```
 
-If you want to help on development, this project is using [webpack](https://webpack.js.org/)
-I use `webpack-dev-server` for development, you can clone this `repo`, then install all modules in `package.json`:
+If you want to help on development, this project using [Webpack](https://webpack.js.org/)
+I use `webpack-dev-server` for development, you can clone / fork this `repo`, then install all dependencies:
 
 ```bash
 npm install
@@ -151,3 +151,5 @@ and then simply run the dev server:
 ```bash
 npm start // in your browser open http://localhost:3001
 ```
+
+Thank you.
