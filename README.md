@@ -139,3 +139,15 @@ class MyComponent extends React.Component {
   box: object // box
 }
 ```
+
+If you want to help on development, this project is using [webpack](https://webpack.js.org/)
+I use `webpack-dev-server` for development, you can clone this `repo`, then install all modules in `package.json`:
+
+```bash
+npm install
+```
+
+and then simply run the dev server:
+```bash
+npm start // in your browser open http://localhost:3001
+```
