@@ -12,6 +12,7 @@ import ReactGridResponsive from "react-grid-responsive"
 
 class MyComponent extends React.Component {
   state = {
+    isStatic: false,
   	height: 400,
     grids: [
       {
@@ -74,6 +75,7 @@ class MyComponent extends React.Component {
         cols={12}
         rowHeight={30}
         height={this.state.height}
+        isStatic={this.state.isStatic}
         onChange={this.updateContainer}
         onBreakpointChange={this.updateContainer}
         onWidthChange={this.updateContainer}>
@@ -110,7 +112,7 @@ class MyComponent extends React.Component {
   cols: number, // 12
   rowHeight: number, // 30
   height: number, // 400
-  static: boolean // true | false
+  isStatic: boolean // true | false
 }
 
 /* function (container) => container
