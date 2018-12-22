@@ -41,12 +41,13 @@ class ReactGridResponsive extends PureComponent {
 
   /* ---------------CONTAINER-------------- */
   initContainer = () => {
+    const { height } = this.props
     const ref = ReactDOM.findDOMNode(this.containerRef)
     const container = ref.getBoundingClientRect()
 
     this.setState({
       width: container.width,
-      height: container.height
+      height
     }, () => {
       this.updateBreakPoints()
       this.renderBoxes()

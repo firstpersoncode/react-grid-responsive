@@ -1,6 +1,6 @@
 {
   "name": "react-grid-responsive",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "main": "dist/index.js",
   "private": false,
   "homepage": "https://github.com/firstpersoncode/react-grid-responsive/blob/master/README.md",
@@ -21,7 +21,7 @@
   },
   "scripts": {
     "start": "NODE_ENV=dev webpack-dev-server --mode development",
-    "build": "webpack"
+    "build": "rm -rf ./dist && webpack"
   },
   "eslintConfig": {
     "extends": "react-app"
