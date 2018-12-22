@@ -4,11 +4,14 @@ import update from 'immutability-helper'
 
 import ReactGridResponsive from '../index'
 
+import '../index.css'
+
 class Example extends Component {
   constructor () {
     super()
     this.state = {
       boxes_1: {
+        isStatic: false,
         height: 400,
         boxes: [
           {
@@ -52,6 +55,7 @@ class Example extends Component {
         ]
       },
       boxes_2: {
+        isStatic: false,
         height: 300,
         boxes: [
           {
@@ -147,6 +151,18 @@ class Example extends Component {
     }))
   }
 
+  toggleStatic = boxes => e => {
+    this.setState(state => ({
+      [boxes]: update(state[boxes], {
+        isStatic: {
+          $set: !state[boxes].isStatic
+        }
+      })
+    }), () => {
+      localStorage.setItem(boxes, JSON.stringify(this.state[boxes]))
+    })
+  }
+
   handleChange = boxes => container => {
     this.setState(state => ({
       [boxes]: update(state[boxes], {
@@ -227,9 +243,12 @@ class Example extends Component {
   render() {
     return (
       <div>
+        <button onClick={this.toggleStatic('boxes_1')}>static: {this.state.boxes_1.isStatic ? 'true' : 'false'}</button>
         <button onClick={this.testUpdate}>update test-1</button>
         <button onClick={this.testUpdate2}>update test-2</button>
         <ReactGridResponsive
+          className='container'
+          isStatic={this.state.boxes_1.isStatic}
           breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
           cols={12}
           rowHeight={30}
@@ -241,6 +260,7 @@ class Example extends Component {
             this.state.boxes_1.boxes.map((box, i) => {
               return (
                 <div
+                  className='box'
                   key={i}
                   id={box.id}
                   box={box}>
@@ -251,7 +271,10 @@ class Example extends Component {
           }
         </ReactGridResponsive>
 
+        <button onClick={this.toggleStatic('boxes_2')}>static: {this.state.boxes_2.isStatic ? 'true' : 'false'}</button>
         <ReactGridResponsive
+          className='container'
+          isStatic={this.state.boxes_2.isStatic}
           breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
           cols={12}
           rowHeight={30}
@@ -263,6 +286,7 @@ class Example extends Component {
             this.state.boxes_2.boxes.map((box, i) => {
               return (
                 <div
+                  className='box'
                   onDrag={this.onDrag('boxes_2', i)}
                   onDragEnd={this.onDragEnd('boxes_2', i)}
                   onResizeEnd={this.onResizeEnd('boxes_2', i)}

@@ -11,6 +11,8 @@ import ResizeAware from 'react-resize-aware'
 
 import { isTouchDevice, isEmpty, includesInArray } from './utils/validator'
 
+import './index.css'
+
 class ReactGridResponsive extends PureComponent {
   containerRef = null
   boxes = []
@@ -22,7 +24,8 @@ class ReactGridResponsive extends PureComponent {
     selected: null,
     width: undefined,
     height: undefined,
-    target: null
+    target: null,
+    isStatic: false
     // containerRel: null
   }
 
@@ -31,8 +34,9 @@ class ReactGridResponsive extends PureComponent {
   }
 
   componentWillReceiveProps (next) {
-    this.updateBoxesByProps(next)
-      this.updateContainerHeightByProps(next)
+    this.initBoxesByProps(next)
+    this.updateContainerHeightByProps(next)
+    this.updateContainerIsStaticByProps(next)
   }
 
   /* ---------------CONTAINER-------------- */
@@ -46,7 +50,7 @@ class ReactGridResponsive extends PureComponent {
       height
     }, () => {
       this.updateBreakPoints()
-      this.initBoxes()
+      this.renderBoxes()
     })
   }
 
@@ -70,7 +74,7 @@ class ReactGridResponsive extends PureComponent {
 
     if (breakpoint !== newBreakpoint) {
       this.setState({ breakpoint: newBreakpoint }, () => {
-        this.updateBoxes()
+        this.renderBoxes()
         this.onBreakpointChangeHandler()
       })
     }
@@ -80,17 +84,30 @@ class ReactGridResponsive extends PureComponent {
     if (next.height !== this.state.height) {
       this.setState({
         height: next.height
+      }, () => {
+        this.renderBoxes()
+      })
+    }
+  }
+
+  updateContainerIsStaticByProps = next => {
+    if (next.isStatic !== this.state.isStatic) {
+      this.setState({
+        isStatic: next.isStatic
+      }, () => {
+        this.renderBoxes()
       })
     }
   }
 
   onSizeChangeContainer = ({ width, height }) => {
+    // console.log(width)
     this.setState({
       width,
-      height
+      // height
     }, () => {
       this.updateBreakPoints()
-      this.updateBoxes()
+      this.renderBoxes()
       this.onWidthChangeHandler()
     })
   }
@@ -215,7 +232,7 @@ class ReactGridResponsive extends PureComponent {
     this.setState({
       height: Math.trunc(targetY)
     }, () => {
-      this.updateBoxes()
+      this.renderBoxes()
     })
 
     // TODO: detect if mouse touch the bottom of window on resizing container
@@ -280,107 +297,119 @@ class ReactGridResponsive extends PureComponent {
   }
 
   /* ---------------BOXES-------------- */
-  initBoxes = () => {
-    const { width, height, breakpoint } = this.state
+  mapChildren = () => {
+    const { width, height, breakpoint, isStatic } = this.state
     const { children, cols, rowHeight } = this.props
 
-    if (children.length) {
-      const boxes = React.Children.map(children, (child, i) => {
-        const { box, id } = child.props
+    const boxes = React.Children.map(children, (child, i) => {
+      const { box, id } = child.props
 
-        let boxW = (box[breakpoint].w / cols) * width
-        let boxH = (box[breakpoint].h / rowHeight) * height
-        let boxX = (box[breakpoint].x / cols) * width
-        let boxY = (box[breakpoint].y / rowHeight) * height
-
-        let style = {
-          margin: 0,
-          opacity: 1,
-          pointerEvents: 'auto',
-          width: boxW,
-          height: boxH,
-          transform: `translate(${boxX}px, ${boxY}px)`,
-          background: 'red',
-          position: 'absolute',
-          zIndex: i
-        }
-
-        let draggerStyle = {
-          position: 'absolute',
-          top: 0,
-          right: 0
-        }
-
-        let resizerStyle = {
-          position: 'absolute',
-          bottom: 0,
-          right: 0
-        }
-
-        return cloneElement(child, {
-          id,
-          style,
-          ref: box => this.boxes[i] = box,
-          rel: { x: null, y: null }
-        }, (
-          <div>
-            <span
-              onMouseDown={this.onStartDragBox(i)}
-              onTouchStart={this.onStartDragBox(i)}
-              style={draggerStyle}>
-              dragger
-            </span>
-            {child.props.children}
-            <span
-              onMouseDown={this.onStartResizeBox(i)}
-              onTouchStart={this.onStartResizeBox(i)}
-              style={resizerStyle}>
-              resizer
-            </span>
-          </div>
-        ))
-      })
-
-      this.setState({
-        boxes
-      })
-    }
-  }
-
-  updateBoxes = () => {
-    const { width, height, boxes, breakpoint } = this.state
-    const { cols, rowHeight } = this.props
-
-    if (isEmpty(boxes)) {
-      return
-    }
-
-    boxes.forEach((child, i) => {
-      const { box, rel } = child.props
       let boxW = (box[breakpoint].w / cols) * width
       let boxH = (box[breakpoint].h / rowHeight) * height
       let boxX = (box[breakpoint].x / cols) * width
       let boxY = (box[breakpoint].y / rowHeight) * height
 
-      this.setState(state => ({
-        boxes: update(state.boxes, {
-          [i]: {
-            $set: update(child, {
-              props: {
-                style: {
-                  width: { $set: boxW },
-                  height: { $set: boxH },
-                  transform: { $set: `translate(${boxX}px, ${boxY}px)` },
-                }
-              }
-            })
+      let style = {
+        // margin: 0,
+        opacity: 1,
+        // pointerEvents: 'auto',
+        width: boxW,
+        height: boxH,
+        transform: `translate(${boxX}px, ${boxY}px)`,
+        // background: 'red',
+        position: 'absolute',
+        zIndex: i
+      }
+
+      return cloneElement(child, {
+        // className: 'box',
+        id,
+        style,
+        ref: box => this.boxes[i] = box,
+        rel: { x: null, y: null }
+      }, (
+        <div>
+          {
+            !isStatic
+              ? (
+                <span
+                  className='box-dragger right-top'
+                  onMouseDown={this.onStartDragBox(i)}
+                  onTouchStart={this.onStartDragBox(i)} />
+              )
+              : null
           }
-        })
-      }))
+
+          {child.props.children}
+
+          {
+            !isStatic
+              ? (
+                <span
+                  className='box-resizer right-bottom'
+                  onMouseDown={this.onStartResizeBox(i)}
+                  onTouchStart={this.onStartResizeBox(i)} />
+              )
+              : null
+          }
+        </div>
+      ))
+    })
+
+    return boxes
+  }
+
+  renderBoxes = () => {
+    // const { children } = this.props
+    //
+    // if (isEmpty(children)) {
+    //   return
+    // }
+
+    this.setState({
+      boxes: this.mapChildren()
     })
   }
 
-  updateBoxesByProps = next => {
+  // renderBoxes = () => {
+  //   // const { boxes } = this.state
+  //   // // const { width, height, boxes, breakpoint } = this.state
+  //   // // const { cols, rowHeight } = this.props
+  //   //
+  //   // if (isEmpty(boxes)) {
+  //   //   return
+  //   // }
+  //
+  //   this.setState({
+  //     boxes: this.mapChildren()
+  //   })
+  //
+  //   // boxes.forEach((child, i) => {
+  //   //   const { box } = child.props
+  //   //   let boxW = (box[breakpoint].w / cols) * width
+  //   //   let boxH = (box[breakpoint].h / rowHeight) * height
+  //   //   let boxX = (box[breakpoint].x / cols) * width
+  //   //   let boxY = (box[breakpoint].y / rowHeight) * height
+  //   //
+  //   //   this.setState(state => ({
+  //   //     boxes: update(state.boxes, {
+  //   //       [i]: {
+  //   //         $set: update(child, {
+  //   //           props: {
+  //   //             style: {
+  //   //               width: { $set: boxW },
+  //   //               height: { $set: boxH },
+  //   //               transform: { $set: `translate(${boxX}px, ${boxY}px)` },
+  //   //             }
+  //   //           }
+  //   //         })
+  //   //       }
+  //   //     })
+  //   //   }))
+  //   // })
+  // }
+
+  initBoxesByProps = next => {
     const { boxes } = this.state
     const nextChildren = next.children
 
@@ -415,7 +444,7 @@ class ReactGridResponsive extends PureComponent {
                   }
                 })
               }), () => {
-                this.updateBoxes()
+                this.renderBoxes()
                 this.onChangeHandler()
               })
             }
@@ -454,7 +483,7 @@ class ReactGridResponsive extends PureComponent {
         },
         style: {
           opacity: {
-            $set: '0.1'
+            $set: '0.5'
           }
         }
       }
@@ -467,7 +496,7 @@ class ReactGridResponsive extends PureComponent {
       props: {
         style: {
           opacity: {
-            $set: '0.2'
+            $set: '0.5'
           }
         }
       }
@@ -979,24 +1008,19 @@ class ReactGridResponsive extends PureComponent {
   }
 
   render() {
-    const { style } = this.props
     const { height } = this.state
+    const { isStatic, className } = this.props
 
     return (
       <ResizeAware
-        style={{
-          position: 'relative'
-        }}
+        style={{ position: 'relative' }}
         onlyEvent
         onResize={this.onSizeChangeContainer}
       >
         <div
+          className={className || 'container'}
           ref={el => this.containerRef = el}
           style={{
-            ...style,
-            // position: 'relative',
-            background: 'blue',
-            width: '100%',
             minHeight: height,
           }}
         >
@@ -1005,16 +1029,16 @@ class ReactGridResponsive extends PureComponent {
           {this.state.target}
 
         </div>
-        <span
-          onMouseDown={this.onStartResizeContainer}
-          onTouchStart={this.onStartResizeContainer}
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0
-          }}>
-          Resizer
-        </span>
+        {
+          !isStatic
+            ? (
+              <span
+                className='container-resizer left-bottom'
+                onMouseDown={this.onStartResizeContainer}
+                onTouchStart={this.onStartResizeContainer} />
+            )
+            : null
+        }
       </ResizeAware>
     )
   }
@@ -1028,8 +1052,8 @@ ReactGridResponsive.propTypes = {
   breakpoints: PropTypes.object,
   cols: PropTypes.number,
   rowHeight: PropTypes.number,
-    height: PropTypes.number,
-  static: PropTypes.bool
+  height: PropTypes.number,
+  isStatic: PropTypes.bool
 }
 
 ReactGridResponsive.defaultProps = {
@@ -1040,8 +1064,8 @@ ReactGridResponsive.defaultProps = {
   breakpoints: { lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 },
   cols: 12,
   rowHeight: 30,
-    height: 400,
-  static: false
+  height: 400,
+  isStatic: false
 }
 
 export default ReactGridResponsive
