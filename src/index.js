@@ -41,13 +41,12 @@ class ReactGridResponsive extends PureComponent {
 
   /* ---------------CONTAINER-------------- */
   initContainer = () => {
-    const { height } = this.props
     const ref = ReactDOM.findDOMNode(this.containerRef)
     const container = ref.getBoundingClientRect()
 
     this.setState({
       width: container.width,
-      height
+      height: container.height
     }, () => {
       this.updateBreakPoints()
       this.renderBoxes()
@@ -467,8 +466,8 @@ class ReactGridResponsive extends PureComponent {
     let y = e.pageY + container.y - boxRef.top + body.scrollTop - body.clientTop
 
     if (isResize) {
-      x = boxRef.left
-      y = boxRef.top
+      x = e.pageX - boxRef.width + body.scrollLeft - body.clientLeft
+      y = e.pageY - boxRef.height + body.scrollTop - body.clientTop
     }
 
     let updateChild = update(child, {
@@ -596,8 +595,8 @@ class ReactGridResponsive extends PureComponent {
     let snapX = (1 / cols) * width
     let snapY = (1 / rowHeight) * height
 
-    let targetX = Math.trunc((e.pageX - rel.x) / snapX) * snapX
-    let targetY = Math.trunc((e.pageY - rel.y) / snapY) * snapY
+    let targetX = Math.trunc((e.clientX - rel.x) / snapX) * snapX
+    let targetY = Math.trunc((e.clientY - rel.y) / snapY) * snapY
 
     if (Math.trunc(targetX + boxW) > Math.trunc(container.left + width)) {
       targetX = Math.trunc(container.left + width - boxW)
@@ -666,20 +665,25 @@ class ReactGridResponsive extends PureComponent {
     //   }
     // })
 
-    // let updateChild = update(child, {
-    //   props: {
-    //     box: {
-    //       [breakpoint]: {
-    //         x: {
-    //           $set: Math.trunc(targetX / snapX)
-    //         },
-    //         y: {
-    //           $set: Math.trunc(targetY / snapY)
-    //         }
-    //       }
-    //     }
-    //   }
-    // })
+    let updateChild = update(child, {
+      props: {
+        // box: {
+        //   [breakpoint]: {
+        //     x: {
+        //       $set: Math.trunc(targetX / snapX)
+        //     },
+        //     y: {
+        //       $set: Math.trunc(targetY / snapY)
+        //     }
+        //   }
+        // }
+        style: {
+          transform: {
+            $set: `translate(${e.clientX - rel.x}px, ${e.clientY - rel.y}px)`
+          },
+        }
+      }
+    })
 
     let updateTarget = update(target, { props: { box: { [breakpoint]: {
       x: {
@@ -694,15 +698,18 @@ class ReactGridResponsive extends PureComponent {
       transform: {
         $set: `translate(${targetX}px, ${targetY}px)`
       },
+      background: {
+        $set: 'lightblue'
+      }
     }}})
 
     this.setState(state => ({
       target: updateTarget,
-      // boxes: update(state.boxes, {
-      //   [selected]: {
-      //     $set: updateChild
-      //   }
-      // })
+      boxes: update(state.boxes, {
+        [selected]: {
+          $set: updateChild
+        }
+      })
     }))
   }
 
@@ -730,30 +737,31 @@ class ReactGridResponsive extends PureComponent {
       }
     }}})
 
-    let counter = 2
-    let updateOtherBoxes = otherBoxes => otherBoxes.map((box, i) => {
-      if (i !== selected) {
-        // if (box.props.style.zIndex === boxes.length - 1) {
-        //   box = update(box, { props: { style: {
-        //     zIndex: {
-        //         $set: selected
-        //         // $set: box.props.style.zIndex ? box.props.style.zIndex - 1 : 1
-        //     }
-        //   }}})
-        // }
-
-        box = update(box, { props: { style: {
-          zIndex: {
-              // $set: selected
-              // $set: box.props.style.zIndex ? box.props.style.zIndex - 1 : 0
-              $set: boxes.length - counter
-          }
-        }}})
-        counter++
-      }
-
-      return box
-    })
+    // // TODO: update zIndex
+    // let counter = 2
+    // let updateOtherBoxes = otherBoxes => otherBoxes.map((box, i) => {
+    //   if (i !== selected) {
+    //     // if (box.props.style.zIndex === boxes.length - 1) {
+    //     //   box = update(box, { props: { style: {
+    //     //     zIndex: {
+    //     //         $set: selected
+    //     //         // $set: box.props.style.zIndex ? box.props.style.zIndex - 1 : 1
+    //     //     }
+    //     //   }}})
+    //     // }
+    //
+    //     box = update(box, { props: { style: {
+    //       zIndex: {
+    //           // $set: selected
+    //           // $set: box.props.style.zIndex ? box.props.style.zIndex - 1 : 0
+    //           $set: boxes.length - counter
+    //       }
+    //     }}})
+    //     counter++
+    //   }
+    //
+    //   return box
+    // })
 
     this.setState(state => ({
       target: null,
@@ -863,7 +871,7 @@ class ReactGridResponsive extends PureComponent {
 
   resizeBox = e => {
     const ref = ReactDOM.findDOMNode(this.containerRef)
-    // const container = ref.getBoundingClientRect()
+    const container = ref.getBoundingClientRect()
 
     ref.style.overflow = 'auto'
 
@@ -877,6 +885,19 @@ class ReactGridResponsive extends PureComponent {
 
     let targetX = Math.trunc((e.clientX - rel.x) / snapX) * snapX
     let targetY = Math.trunc((e.clientY - rel.y) / snapY) * snapY
+
+    // if (Math.trunc(targetX + boxW) > Math.trunc(container.left + width)) {
+    //   targetX = Math.trunc(container.left + width - boxW)
+    // } else if (Math.trunc(targetX) < 0) {
+    //   targetX = 0
+    // }
+    //
+    // if (Math.trunc(targetY + boxH) > Math.trunc(container.top + height)) {
+    //   targetY = Math.trunc(container.top + height - boxH)
+    // } else if (Math.trunc(targetY) < 0) {
+    //   targetY = 0
+    // }
+
     // TODO: detect if element touch container on resizing
     // if (Math.trunc(targetX / snapX) >= cols) {
     //   targetX = cols
@@ -890,20 +911,28 @@ class ReactGridResponsive extends PureComponent {
     //   targetY = 1
     // }
 
-    // let updateChild = update(child, {
-    //   props: {
-    //     box: {
-    //       [breakpoint]: {
-    //         w: {
-    //           $set: Math.trunc(targetX / snapX)
-    //         },
-    //         h: {
-    //           $set: Math.trunc(targetY / snapY)
-    //         }
-    //       }
-    //     }
-    //   }
-    // })
+    let updateChild = update(child, {
+      props: {
+        // box: {
+        //   [breakpoint]: {
+        //     w: {
+        //       $set: Math.trunc(targetX / snapX)
+        //     },
+        //     h: {
+        //       $set: Math.trunc(targetY / snapY)
+        //     }
+        //   }
+        // }
+        style: {
+          width: {
+            $set: `${e.clientX - rel.x}px`
+          },
+          height: {
+            $set: `${e.clientY - rel.y}px`
+          }
+        }
+      }
+    })
 
     let updateTarget = update(target, {
       props: {
@@ -927,17 +956,20 @@ class ReactGridResponsive extends PureComponent {
           height: {
             $set: `${targetY}px`
           },
+          background: {
+            $set: 'lightblue'
+          }
         }
       }
     })
 
     this.setState(state => ({
       target: updateTarget,
-      // boxes: update(state.boxes, {
-      //   [selected]: {
-      //     $set: updateChild
-      //   }
-      // })
+      boxes: update(state.boxes, {
+        [selected]: {
+          $set: updateChild
+        }
+      })
     }))
   }
 
