@@ -968,11 +968,11 @@ class ReactGridResponsive extends PureComponent {
     }
   }
 
-	render() {
+  render() {
     const { style } = this.props
     const { container } = this.state
 
-		return (
+    return (
       <ResizeAware
         style={{
           position: 'relative'
@@ -1006,8 +1006,8 @@ class ReactGridResponsive extends PureComponent {
           Resizer
         </span>
       </ResizeAware>
-		)
-	}
+    )
+  }
 }
 
 ReactGridResponsive.propTypes = {

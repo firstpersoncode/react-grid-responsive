@@ -4,13 +4,13 @@
   "main": "dist/index.js",
   "private": false,
   "homepage": "https://github.com/firstpersoncode/react-grid-responsive/blob/master/README.md",
-  "url" : "https://github.com/firstpersoncode/react-grid-responsive/issues",
-  "email" : "nasser.maronie@gmail.com",
-  "license" : "MIT",
-  "description" : "React component for grid layouting with dnd, resizable, dynamically update grid, etc.. still in development",
+  "url": "https://github.com/firstpersoncode/react-grid-responsive/issues",
+  "email": "nasser.maronie@gmail.com",
+  "license": "MIT",
+  "description": "React component for grid layouting with dnd, resizable, dynamically update grid, etc.. still in development",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/firstpersoncode/react-grid-responsive"
+    "type": "git",
+    "url": "https://github.com/firstpersoncode/react-grid-responsive"
   },
   "dependencies": {
     "immutability-helper": "^2.9.0",
