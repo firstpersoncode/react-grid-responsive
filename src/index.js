@@ -23,7 +23,7 @@ class ReactGridResponsive extends PureComponent {
     boxes: [],
     selected: null,
     width: undefined,
-    height: undefined,
+    height: 400,
     target: null,
     isStatic: false
     // containerRel: null
@@ -101,7 +101,6 @@ class ReactGridResponsive extends PureComponent {
   }
 
   onSizeChangeContainer = ({ width, height }) => {
-    // console.log(width)
     this.setState({
       width,
       // height
