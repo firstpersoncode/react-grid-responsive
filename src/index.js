@@ -22,8 +22,8 @@ class ReactGridResponsive extends PureComponent {
     selected: null,
     width: undefined,
     height: undefined,
-    target: null,
-    containerRel: null
+    target: null
+    // containerRel: null
   }
 
   componentDidMount () {
@@ -32,16 +32,18 @@ class ReactGridResponsive extends PureComponent {
 
   componentWillReceiveProps (next) {
     this.updateBoxesByProps(next)
+      this.updateContainerHeightByProps(next)
   }
 
   /* ---------------CONTAINER-------------- */
   initContainer = () => {
+    const { height } = this.props
     const ref = ReactDOM.findDOMNode(this.containerRef)
     const container = ref.getBoundingClientRect()
 
     this.setState({
       width: container.width,
-      height: container.height
+      height
     }, () => {
       this.updateBreakPoints()
       this.initBoxes()
@@ -70,6 +72,14 @@ class ReactGridResponsive extends PureComponent {
       this.setState({ breakpoint: newBreakpoint }, () => {
         this.updateBoxes()
         this.onBreakpointChangeHandler()
+      })
+    }
+  }
+
+  updateContainerHeightByProps = next => {
+    if (next.height !== this.state.height) {
+      this.setState({
+        height: next.height
       })
     }
   }
@@ -201,7 +211,7 @@ class ReactGridResponsive extends PureComponent {
       targetY = 200
     }
 
-    ref.style.minHeight = Math.trunc(targetY) + 'px'
+    // ref.style.minHeight = Math.trunc(targetY) + 'px'
     this.setState({
       height: Math.trunc(targetY)
     }, () => {
@@ -970,7 +980,7 @@ class ReactGridResponsive extends PureComponent {
 
   render() {
     const { style } = this.props
-    const { container } = this.state
+    const { height } = this.state
 
     return (
       <ResizeAware
@@ -987,7 +997,7 @@ class ReactGridResponsive extends PureComponent {
             // position: 'relative',
             background: 'blue',
             width: '100%',
-            minHeight: 400,
+            minHeight: height,
           }}
         >
 
@@ -1018,6 +1028,7 @@ ReactGridResponsive.propTypes = {
   breakpoints: PropTypes.object,
   cols: PropTypes.number,
   rowHeight: PropTypes.number,
+    height: PropTypes.number,
   static: PropTypes.bool
 }
 
@@ -1029,6 +1040,7 @@ ReactGridResponsive.defaultProps = {
   breakpoints: { lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 },
   cols: 12,
   rowHeight: 30,
+    height: 400,
   static: false
 }
 

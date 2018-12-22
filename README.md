@@ -12,6 +12,7 @@ import ReactGridResponsive from "react-grid-responsive"
 
 class MyComponent extends React.Component {
   state = {
+  	height: 400,
     grids: [
       {
         id: 'grid-1',
@@ -48,8 +49,9 @@ class MyComponent extends React.Component {
     ]
   }
 
-  updateGrids = container => {
+  updateContainer = container => {
     this.setState({
+      height: container.height,
       grids: container.boxes
     })
   }
@@ -71,9 +73,10 @@ class MyComponent extends React.Component {
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
         cols={12}
         rowHeight={30}
-        onChange={this.updateGrids}
-        onBreakpointChange={this.updateGrids}
-        onWidthChange={this.updateGrids}>
+        height={this.state.height}
+        onChange={this.updateContainer}
+        onBreakpointChange={this.updateContainer}
+        onWidthChange={this.updateContainer}>
         {
           this.state.grids.map((grid, i) => {
             return (
@@ -98,14 +101,6 @@ class MyComponent extends React.Component {
 ### Props
 ```javascript
 // ReactGridResponsive
-/* container
-{
-    height: number, // 400
-    width: number, // 800
-    breakpoint: string, // "lg" | "md" | "sm" ...
-    boxes: array, // [ box ]
-}
-*/
 {
   onChange: func, // function (container)
   onBreakpointChange: func, // function (container)
@@ -114,20 +109,20 @@ class MyComponent extends React.Component {
   breakpoints: object, // { lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }
   cols: number, // 12
   rowHeight: number, // 30
+  height: number, // 400
   static: boolean // true | false
 }
 
-// ReactGridResponsive.children
-/* box
+/* function (container) => container
 {
-    id: string, // "grid-1"
-    lg: object, // { x: ?, y: ?, w: ?, h: ? }
-    md: object, // { x: ?, y: ?, w: ?, h: ? }
-    sm: object, // { x: ?, y: ?, w: ?, h: ? }
-    xs: object, // { x: ?, y: ?, w: ?, h: ? }
-    xxs: object // { x: ?, y: ?, w: ?, h: ? }
+    height: number, // 400
+    width: number, // 800
+    breakpoint: string, // "lg" | "md" | "sm" ...
+    boxes: array, // [ box ]
 }
 */
+
+// ReactGridResponsive.children
 {
   onDragStart: func, // function (box)
   onDrag: func, // function (box)
@@ -138,6 +133,17 @@ class MyComponent extends React.Component {
 
   box: object // box
 }
+
+/* function (box) => box
+{
+    id: string, // "grid-1"
+    lg: object, // { x: ?, y: ?, w: ?, h: ? }
+    md: object, // { x: ?, y: ?, w: ?, h: ? }
+    sm: object, // { x: ?, y: ?, w: ?, h: ? }
+    xs: object, // { x: ?, y: ?, w: ?, h: ? }
+    xxs: object // { x: ?, y: ?, w: ?, h: ? }
+}
+*/
 ```
 This project bundled using [Webpack](https://webpack.js.org/)
 
