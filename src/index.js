@@ -11,8 +11,6 @@ import ResizeAware from 'react-resize-aware'
 
 import { isTouchDevice, isEmpty, includesInArray } from './utils/validator'
 
-import './index.css'
-
 class ReactGridResponsive extends PureComponent {
   containerRef = null
   boxes = []
@@ -29,14 +27,16 @@ class ReactGridResponsive extends PureComponent {
     // containerRel: null
   }
 
+  /* ---------------LIFE CYCLE-------------- */
   componentDidMount () {
     this.initContainer()
   }
 
+  // this is for update component when props updated
   componentWillReceiveProps (next) {
-    this.initBoxesByProps(next)
-    this.updateContainerHeightByProps(next)
     this.updateContainerIsStaticByProps(next)
+    this.updateBoxesByProps(next)
+    this.updateContainerHeightByProps(next)
   }
 
   /* ---------------CONTAINER-------------- */
@@ -81,6 +81,12 @@ class ReactGridResponsive extends PureComponent {
   }
 
   updateContainerHeightByProps = next => {
+    const { isStatic } = this.state
+
+    if (isStatic) {
+      return
+    }
+
     if (next.height !== this.state.height) {
       this.setState({
         height: next.height
@@ -320,6 +326,22 @@ class ReactGridResponsive extends PureComponent {
         zIndex: i
       }
 
+      let draggerStyle = {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        cursor: 'move',
+        fontSize: 15
+      }
+
+      let resizerStyle = {
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        cursor: 'se-resize',
+        fontSize: 15
+      }
+
       return cloneElement(child, {
         // className: 'box',
         id,
@@ -332,9 +354,11 @@ class ReactGridResponsive extends PureComponent {
             !isStatic
               ? (
                 <span
-                  className='box-dragger right-top'
+                  style={draggerStyle}
                   onMouseDown={this.onStartDragBox(i)}
-                  onTouchStart={this.onStartDragBox(i)} />
+                  onTouchStart={this.onStartDragBox(i)}>
+                  &#8644;
+                </span>
               )
               : null
           }
@@ -345,9 +369,11 @@ class ReactGridResponsive extends PureComponent {
             !isStatic
               ? (
                 <span
-                  className='box-resizer right-bottom'
+                  style={resizerStyle}
                   onMouseDown={this.onStartResizeBox(i)}
-                  onTouchStart={this.onStartResizeBox(i)} />
+                  onTouchStart={this.onStartResizeBox(i)}>
+                  &#8690;
+                </span>
               )
               : null
           }
@@ -370,7 +396,7 @@ class ReactGridResponsive extends PureComponent {
     })
   }
 
-  // renderBoxes = () => {
+  // updateBoxes = () => {
   //   // const { boxes } = this.state
   //   // // const { width, height, boxes, breakpoint } = this.state
   //   // // const { cols, rowHeight } = this.props
@@ -408,11 +434,11 @@ class ReactGridResponsive extends PureComponent {
   //   // })
   // }
 
-  initBoxesByProps = next => {
-    const { boxes } = this.state
+  updateBoxesByProps = next => {
+    const { boxes, isStatic } = this.state
     const nextChildren = next.children
 
-    if (isEmpty(nextChildren) || isEmpty(boxes)) {
+    if (isEmpty(nextChildren) || isEmpty(boxes) || isStatic) {
       return
     }
 
@@ -604,79 +630,45 @@ class ReactGridResponsive extends PureComponent {
       targetX = 0
     }
 
-    if (Math.trunc(targetY + boxH) > Math.trunc(container.top + height)) {
-      targetY = Math.trunc(container.top + height - boxH)
+    if (Math.trunc(targetY + boxH) > Math.trunc(height)) {
+      targetY = Math.trunc(height - boxH)
     } else if (Math.trunc(targetY) < 0) {
       targetY = 0
     }
 
-    // TODO: prevent element dragged to another element
-    // console.log(Math.trunc(boxH / snapY))
-    // boxes.forEach((box, i) => {
-    //   if (i !== selected) {
-    //     const refBox = ReactDOM.findDOMNode(this.boxes[i]).getBoundingClientRect()
-    //     const { box } = this.state.boxes[i].props
-    //     const selectedBox = this.state.boxes[selected].props.box
-    //     if (
-    //       Math.trunc(targetX / snapX) + selectedBox[breakpoint].w === box[breakpoint].x + 1
-    //       // (
-    //       //   Math.trunc(targetY / snapY) + selectedBox[breakpoint].h > box[breakpoint].y + box[breakpoint].h &&
-    //       //   Math.trunc(targetY / snapY) + selectedBox[breakpoint].h < box[breakpoint].y
-    //       // )
-    //     ) {
-    //       ReactDOM.findDOMNode(this.boxes[i]).style.background = 'green'
-    //       // if (
-    //       //   Math.trunc(targetY + boxH) <= Math.trunc(refBox.top) ||
-    //       //   Math.trunc(targetY) >= Math.trunc(refBox.top + refBox.height)
-    //       // ) {
-    //       //   ReactDOM.findDOMNode(this.boxes[selected]).style.background = 'lightblue'
-    //       // }
-    //     } else if (
-    //       Math.trunc(targetX / snapX) === box[breakpoint].x + box[breakpoint].w - 1
-    //       // (
-    //       //   Math.trunc(targetY / snapY) + selectedBox[breakpoint].h > box[breakpoint].y + box[breakpoint].h &&
-    //       //   Math.trunc(targetY / snapY) + selectedBox[breakpoint].h < box[breakpoint].y
-    //       // )
-    //     ) {
-    //       ReactDOM.findDOMNode(this.boxes[i]).style.background = 'purple'
-    //       // if (
-    //       //   Math.trunc(targetY + boxH) < Math.trunc(refBox.top) ||
-    //       //   Math.trunc(targetY) > Math.trunc(refBox.top + refBox.height)
-    //       // ) {
-    //       //   ReactDOM.findDOMNode(this.boxes[selected]).style.background = 'yellow'
-    //       // }
-    //     } else if (
-    //       Math.trunc(targetY / snapY) + selectedBox[breakpoint].h === box[breakpoint].y + 1
-    //       // (
-    //       //   Math.trunc(targetY / snapY) + selectedBox[breakpoint].h > box[breakpoint].y + box[breakpoint].h &&
-    //       //   Math.trunc(targetY / snapY) + selectedBox[breakpoint].h < box[breakpoint].y
-    //       // )
-    //     ) {
-    //       ReactDOM.findDOMNode(this.boxes[i]).style.background = 'yellow'
-    //       // if (
-    //       //   Math.trunc(targetY + boxH) < Math.trunc(refBox.top) ||
-    //       //   Math.trunc(targetY) > Math.trunc(refBox.top + refBox.height)
-    //       // ) {
-    //       //   ReactDOM.findDOMNode(this.boxes[selected]).style.background = 'yellow'
-    //       // }
-    //     } else {
-    //       ReactDOM.findDOMNode(this.boxes[i]).style.background = 'red'
-    //     }
-    //   }
-    // })
+    // TODO: prevent element dragged to another element, detect if hit box hit another box
+    let hit = null
+    let ohit = null
+    boxes.forEach((box, i) => {
+      if (i !== selected) {
+        // const hitBox = ReactDOM.findDOMNode(this.boxes[i])
+        // const hitBox = refBox.getBoundingClientRect()
+        const { box } = this.state.boxes[i].props
+        // const otherBox = this.state.boxes[i + 1].props
+        const selectedBox = this.state.boxes[selected].props.box
+
+        let hitR = Math.trunc(targetX / snapX) < box[breakpoint].x + box[breakpoint].w
+        let hitL = Math.trunc(targetX / snapX) + selectedBox[breakpoint].w > box[breakpoint].x
+
+        let hitHorizontally = hitR && hitL
+
+        let hitB = Math.trunc(targetY / snapY) < box[breakpoint].y + box[breakpoint].h
+        let hitT = Math.trunc(targetY / snapY) + selectedBox[breakpoint].h > box[breakpoint].y
+
+        let hitVertically = hitB && hitT
+
+        if (hitHorizontally && hitVertically) {
+          hit = i
+          // let ohitT = Math.trunc(targetY / snapY) + box[breakpoint].y + box[breakpoint].h > otherBox[breakpoint].y
+          // if (ohitT) {
+          //   ohit = i + 1
+          // }
+        }
+      }
+    })
 
     let updateChild = update(child, {
       props: {
-        // box: {
-        //   [breakpoint]: {
-        //     x: {
-        //       $set: Math.trunc(targetX / snapX)
-        //     },
-        //     y: {
-        //       $set: Math.trunc(targetY / snapY)
-        //     }
-        //   }
-        // }
         style: {
           transform: {
             $set: `translate(${e.clientX - rel.x}px, ${e.clientY - rel.y}px)`
@@ -703,6 +695,21 @@ class ReactGridResponsive extends PureComponent {
       }
     }}})
 
+    let updateHit = hitBox => update(hitBox, { props: { box: { [breakpoint]: {
+      x: {
+        $set: hitBox.props.box[breakpoint].x
+      },
+      y: {
+        $set: Math.trunc(targetY / snapY) + box[breakpoint].h
+      }}}, style: {
+      transition: {
+        $set: 'transform ease-out .1s'
+      },
+      transform: {
+        $set: `translate(${hitBox.props.box[breakpoint].x * snapX}px, ${targetY + boxH}px)`
+      }
+    }}})
+
     this.setState(state => ({
       target: updateTarget,
       boxes: update(state.boxes, {
@@ -710,7 +717,15 @@ class ReactGridResponsive extends PureComponent {
           $set: updateChild
         }
       })
-    }))
+    }), () => {
+      if (typeof hit === 'number') {
+        this.setState(state => ({
+          boxes: update(state.boxes, {
+            [hit]: updateHit
+          })
+        }))
+      }
+    })
   }
 
   endDragBox = () => {
@@ -1065,9 +1080,18 @@ class ReactGridResponsive extends PureComponent {
           !isStatic
             ? (
               <span
-                className='container-resizer left-bottom'
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  bottom: 0,
+                  transform: 'scaleX(-1)',
+                  cursor: 'sw-resize',
+                  zIndex: this.state.boxes.length + 1
+                }}
                 onMouseDown={this.onStartResizeContainer}
-                onTouchStart={this.onStartResizeContainer} />
+                onTouchStart={this.onStartResizeContainer}>
+                &#8690;
+              </span>
             )
             : null
         }

@@ -26,11 +26,7 @@ let webpackConfigs = {
       }
     ]
   },
-  plugins: [
-    new CopyWebpackPlugin([
-      { from: 'src/utils', to: './utils' }
-    ])
-  ]
+  plugins: []
 }
 
 if (process.env.NODE_ENV === 'dev') {
@@ -56,6 +52,10 @@ if (process.env.NODE_ENV === 'dev') {
     filename: 'index.js',
     libraryTarget: 'commonjs2'
   }
+
+  webpackConfigs.plugins.push(new CopyWebpackPlugin([
+    { from: 'src/utils', to: './utils' }
+  ]))
 
   webpackConfigs.externals = {
     'react': 'commonjs react'

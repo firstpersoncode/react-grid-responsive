@@ -4,7 +4,7 @@ import update from 'immutability-helper'
 
 import ReactGridResponsive from '../index'
 
-import '../index.css'
+import './index.css'
 
 class Example extends Component {
   constructor () {
@@ -20,9 +20,7 @@ class Example extends Component {
             md: { x: 0, y: 0, w: 4, h: 5 },
             sm: { x: 0, y: 0, w: 6, h: 5 },
             xs: { x: 0, y: 0, w: 12, h: 5 },
-            xxs: { x: 0, y: 0, w: 12, h: 5 },
-            // onDragEnd: box => this.setState({ box_1: box }),
-            // onResizeEnd: box => this.setState({ box_1: box })
+            xxs: { x: 0, y: 0, w: 12, h: 5 }
           },
           {
             id: 'test-2',
@@ -30,9 +28,7 @@ class Example extends Component {
             md: { x: 4, y: 0, w: 4, h: 5 },
             sm: { x: 6, y: 0, w: 6, h: 5 },
             xs: { x: 0, y: 2, w: 12, h: 5 },
-            xxs: { x: 0, y: 2, w: 12, h: 5 },
-            // onDragEnd: box => this.setState({ box_2: box }),
-            // onResizeEnd: box => this.setState({ box_2: box })
+            xxs: { x: 0, y: 2, w: 12, h: 5 }
           },
           {
             id: 'test-3',
@@ -48,15 +44,13 @@ class Example extends Component {
             md: { x: 0, y: 2, w: 4, h: 5 },
             sm: { x: 6, y: 2, w: 6, h: 5 },
             xs: { x: 6, y: 4, w: 6, h: 5 },
-            xxs: { x: 0, y: 6, w: 12, h: 5 },
-            // onDragStart: box => console.log('test-4', box),
-            // onDragEnd: box => console.log('test-4', box)
+            xxs: { x: 0, y: 6, w: 12, h: 5 }
           }
         ]
       },
       boxes_2: {
         isStatic: false,
-        height: 300,
+        height: 400,
         boxes: [
           {
             id: 'test-1',
@@ -64,9 +58,7 @@ class Example extends Component {
             md: { x: 0, y: 0, w: 4, h: 5 },
             sm: { x: 0, y: 0, w: 6, h: 5 },
             xs: { x: 0, y: 0, w: 12, h: 5 },
-            xxs: { x: 0, y: 0, w: 12, h: 5 },
-            // onDragEnd: box => this.setState({ box_1: box }),
-            // onResizeEnd: box => this.setState({ box_1: box })
+            xxs: { x: 0, y: 0, w: 12, h: 5 }
           },
           {
             id: 'test-2',
@@ -74,9 +66,7 @@ class Example extends Component {
             md: { x: 4, y: 0, w: 4, h: 5 },
             sm: { x: 6, y: 0, w: 6, h: 5 },
             xs: { x: 0, y: 2, w: 12, h: 5 },
-            xxs: { x: 0, y: 2, w: 12, h: 5 },
-            // onDragEnd: box => this.setState({ box_2: box }),
-            // onResizeEnd: box => this.setState({ box_2: box })
+            xxs: { x: 0, y: 2, w: 12, h: 5 }
           },
           {
             id: 'test-3',
@@ -92,9 +82,7 @@ class Example extends Component {
             md: { x: 0, y: 2, w: 4, h: 5 },
             sm: { x: 6, y: 2, w: 6, h: 5 },
             xs: { x: 6, y: 4, w: 6, h: 5 },
-            xxs: { x: 0, y: 6, w: 12, h: 5 },
-            // onDragStart: box => console.log('test-4', box),
-            // onDragEnd: box => console.log('test-4', box)
+            xxs: { x: 0, y: 6, w: 12, h: 5 }
           }
         ]
       }
@@ -120,6 +108,10 @@ class Example extends Component {
   }
 
   testUpdate = () => {
+    if (this.state.boxes_1.isStatic) {
+      return
+    }
+
     this.setState(state => ({
       boxes_1: update(state.boxes_1, {
         boxes: {
@@ -136,6 +128,10 @@ class Example extends Component {
   }
 
   testUpdate2 = () => {
+    if (this.state.boxes_1.isStatic) {
+      return
+    }
+
     this.setState(state => ({
       boxes_1: update(state.boxes_1, {
         boxes: {
@@ -246,6 +242,7 @@ class Example extends Component {
         <button onClick={this.toggleStatic('boxes_1')}>static: {this.state.boxes_1.isStatic ? 'true' : 'false'}</button>
         <button onClick={this.testUpdate}>update test-1</button>
         <button onClick={this.testUpdate2}>update test-2</button>
+
         <ReactGridResponsive
           className='container'
           isStatic={this.state.boxes_1.isStatic}
@@ -287,9 +284,9 @@ class Example extends Component {
               return (
                 <div
                   className='box'
-                  onDrag={this.onDrag('boxes_2', i)}
-                  onDragEnd={this.onDragEnd('boxes_2', i)}
-                  onResizeEnd={this.onResizeEnd('boxes_2', i)}
+                  // onDrag={this.onDrag('boxes_2', i)}
+                  // onDragEnd={this.onDragEnd('boxes_2', i)}
+                  // onResizeEnd={this.onResizeEnd('boxes_2', i)}
                   key={i}
                   id={box.id}
                   box={box}>
