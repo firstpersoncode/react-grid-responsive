@@ -1,6 +1,6 @@
 {
   "name": "react-grid-responsive",
-  "version": "0.2.9",
+  "version": "0.3.0",
   "main": "dist/index.js",
   "private": false,
   "homepage": "https://github.com/firstpersoncode/react-grid-responsive/blob/master/README.md",
