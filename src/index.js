@@ -306,7 +306,7 @@ class ReactGridResponsive extends PureComponent {
     const { width, height, breakpoint, isStatic } = this.state
     const { children, cols, rowHeight } = this.props
 
-    const boxes = React.Children.map(children, (child, i) => {
+    let boxes = React.Children.map(children, (child, i) => {
       const { box, id } = child.props
 
       let boxW = (box[breakpoint].w / cols) * width
@@ -381,16 +381,63 @@ class ReactGridResponsive extends PureComponent {
       ))
     })
 
-    return boxes
+    return this.preventCollisionBoxes(boxes)
+    // return boxes
+  }
+
+  preventCollisionBoxes = boxes => {
+    const { width, height, breakpoint } = this.state
+    const { cols, rowHeight } = this.props
+    // const { boxes } = this.state
+    // TODO: prevent element dragged to another element, detect if hit box hit another box
+    let snapX = (1 / cols) * width
+    let snapY = (1 / rowHeight) * height
+    // let hit = null
+    let updateBoxes = boxes.map((box, i) => {
+      if (!isEmpty(boxes[i + 1])) {
+        const selectedBox = box.props.box
+        const otherBox = boxes[i + 1].props.box
+        // console.log(box, selectedBox)
+        let hitR = selectedBox[breakpoint].x < otherBox[breakpoint].x + otherBox[breakpoint].w
+        let hitL = selectedBox[breakpoint].x + selectedBox[breakpoint].w > otherBox[breakpoint].x
+
+        let hitHorizontally = hitR && hitL
+
+        let hitB = selectedBox[breakpoint].y < otherBox[breakpoint].y + otherBox[breakpoint].h
+        let hitT = selectedBox[breakpoint].y + selectedBox[breakpoint].h > otherBox[breakpoint].y
+
+        let hitVertically = hitB && hitT
+
+        if (hitHorizontally && hitVertically) {
+          otherBox = update(otherBox, {
+            x: {
+              $set: otherBox[breakpoint].x
+            },
+            y: {
+              $set: selectedBox[breakpoint].y + selectedBox[breakpoint].h
+            }
+          })
+
+          boxes[i + 1].props.box = otherBox
+        }
+      }
+
+      return box
+    })
+
+    // style: {
+    //   transition: {
+    //     $set: 'transform ease-out .1s'
+    //   },
+    //   transform: {
+    //     $set: `translate(${otherBox[breakpoint].x * snapX}px, ${(selectedBox[breakpoint].y + selectedBox[breakpoint].h) * snapY}px)`
+    //   }
+    // }
+
+    return updateBoxes
   }
 
   renderBoxes = () => {
-    // const { children } = this.props
-    //
-    // if (isEmpty(children)) {
-    //   return
-    // }
-
     this.setState({
       boxes: this.mapChildren()
     })
@@ -636,37 +683,6 @@ class ReactGridResponsive extends PureComponent {
       targetY = 0
     }
 
-    // TODO: prevent element dragged to another element, detect if hit box hit another box
-    let hit = null
-    let ohit = null
-    boxes.forEach((box, i) => {
-      if (i !== selected) {
-        // const hitBox = ReactDOM.findDOMNode(this.boxes[i])
-        // const hitBox = refBox.getBoundingClientRect()
-        const { box } = this.state.boxes[i].props
-        // const otherBox = this.state.boxes[i + 1].props
-        const selectedBox = this.state.boxes[selected].props.box
-
-        let hitR = Math.trunc(targetX / snapX) < box[breakpoint].x + box[breakpoint].w
-        let hitL = Math.trunc(targetX / snapX) + selectedBox[breakpoint].w > box[breakpoint].x
-
-        let hitHorizontally = hitR && hitL
-
-        let hitB = Math.trunc(targetY / snapY) < box[breakpoint].y + box[breakpoint].h
-        let hitT = Math.trunc(targetY / snapY) + selectedBox[breakpoint].h > box[breakpoint].y
-
-        let hitVertically = hitB && hitT
-
-        if (hitHorizontally && hitVertically) {
-          hit = i
-          // let ohitT = Math.trunc(targetY / snapY) + box[breakpoint].y + box[breakpoint].h > otherBox[breakpoint].y
-          // if (ohitT) {
-          //   ohit = i + 1
-          // }
-        }
-      }
-    })
-
     let updateChild = update(child, {
       props: {
         style: {
@@ -695,21 +711,6 @@ class ReactGridResponsive extends PureComponent {
       }
     }}})
 
-    let updateHit = hitBox => update(hitBox, { props: { box: { [breakpoint]: {
-      x: {
-        $set: hitBox.props.box[breakpoint].x
-      },
-      y: {
-        $set: Math.trunc(targetY / snapY) + box[breakpoint].h
-      }}}, style: {
-      transition: {
-        $set: 'transform ease-out .1s'
-      },
-      transform: {
-        $set: `translate(${hitBox.props.box[breakpoint].x * snapX}px, ${targetY + boxH}px)`
-      }
-    }}})
-
     this.setState(state => ({
       target: updateTarget,
       boxes: update(state.boxes, {
@@ -717,15 +718,7 @@ class ReactGridResponsive extends PureComponent {
           $set: updateChild
         }
       })
-    }), () => {
-      if (typeof hit === 'number') {
-        this.setState(state => ({
-          boxes: update(state.boxes, {
-            [hit]: updateHit
-          })
-        }))
-      }
-    })
+    }))
   }
 
   endDragBox = () => {
@@ -926,18 +919,10 @@ class ReactGridResponsive extends PureComponent {
     //   targetY = 1
     // }
 
+    // TODO: prevent element resized to another element, detect if hit box hit another box
+
     let updateChild = update(child, {
       props: {
-        // box: {
-        //   [breakpoint]: {
-        //     w: {
-        //       $set: Math.trunc(targetX / snapX)
-        //     },
-        //     h: {
-        //       $set: Math.trunc(targetY / snapY)
-        //     }
-        //   }
-        // }
         style: {
           width: {
             $set: `${e.clientX - rel.x}px`
