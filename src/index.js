@@ -381,61 +381,61 @@ class ReactGridResponsive extends PureComponent {
       ))
     })
 
-    return this.preventCollisionBoxes(boxes)
-    // return boxes
+    // return this.preventCollisionBoxes(boxes)
+    return boxes
   }
 
-  preventCollisionBoxes = boxes => {
-    const { width, height, breakpoint } = this.state
-    const { cols, rowHeight } = this.props
-    // const { boxes } = this.state
-    // TODO: prevent element dragged to another element, detect if hit box hit another box
-    let snapX = (1 / cols) * width
-    let snapY = (1 / rowHeight) * height
-    // let hit = null
-    let updateBoxes = boxes.map((box, i) => {
-      if (!isEmpty(boxes[i + 1])) {
-        const selectedBox = box.props.box
-        const otherBox = boxes[i + 1].props.box
-        // console.log(box, selectedBox)
-        let hitR = selectedBox[breakpoint].x < otherBox[breakpoint].x + otherBox[breakpoint].w
-        let hitL = selectedBox[breakpoint].x + selectedBox[breakpoint].w > otherBox[breakpoint].x
-
-        let hitHorizontally = hitR && hitL
-
-        let hitB = selectedBox[breakpoint].y < otherBox[breakpoint].y + otherBox[breakpoint].h
-        let hitT = selectedBox[breakpoint].y + selectedBox[breakpoint].h > otherBox[breakpoint].y
-
-        let hitVertically = hitB && hitT
-
-        if (hitHorizontally && hitVertically) {
-          otherBox = update(otherBox, {
-            x: {
-              $set: otherBox[breakpoint].x
-            },
-            y: {
-              $set: selectedBox[breakpoint].y + selectedBox[breakpoint].h
-            }
-          })
-
-          boxes[i + 1].props.box = otherBox
-        }
-      }
-
-      return box
-    })
-
-    // style: {
-    //   transition: {
-    //     $set: 'transform ease-out .1s'
-    //   },
-    //   transform: {
-    //     $set: `translate(${otherBox[breakpoint].x * snapX}px, ${(selectedBox[breakpoint].y + selectedBox[breakpoint].h) * snapY}px)`
-    //   }
-    // }
-
-    return updateBoxes
-  }
+  // preventCollisionBoxes = boxes => {
+  //   const { width, height, breakpoint } = this.state
+  //   const { cols, rowHeight } = this.props
+  //   // const { boxes } = this.state
+  //   // TODO: prevent element dragged to another element, detect if hit box hit another box
+  //   let snapX = (1 / cols) * width
+  //   let snapY = (1 / rowHeight) * height
+  //   // let hit = null
+  //   let updateBoxes = boxes.map((box, i) => {
+  //     if (!isEmpty(boxes[i + 1])) {
+  //       let selectedBox = box.props.box
+  //       let otherBox = boxes[i + 1].props.box
+  //       // console.log(box, selectedBox)
+  //       let hitR = selectedBox[breakpoint].x < otherBox[breakpoint].x + otherBox[breakpoint].w
+  //       let hitL = selectedBox[breakpoint].x + selectedBox[breakpoint].w > otherBox[breakpoint].x
+  //
+  //       let hitHorizontally = hitR && hitL
+  //
+  //       let hitB = selectedBox[breakpoint].y < otherBox[breakpoint].y + otherBox[breakpoint].h
+  //       let hitT = selectedBox[breakpoint].y + selectedBox[breakpoint].h > otherBox[breakpoint].y
+  //
+  //       let hitVertically = hitB && hitT
+  //
+  //       if (hitHorizontally && hitVertically) {
+  //         otherBox = update(otherBox, {
+  //           x: {
+  //             $set: otherBox[breakpoint].x
+  //           },
+  //           y: {
+  //             $set: selectedBox[breakpoint].y + selectedBox[breakpoint].h
+  //           }
+  //         })
+  //
+  //         // boxes[i + 1].props.box = otherBox
+  //       }
+  //     }
+  //
+  //     return box
+  //   })
+  //
+  //   // style: {
+  //   //   transition: {
+  //   //     $set: 'transform ease-out .1s'
+  //   //   },
+  //   //   transform: {
+  //   //     $set: `translate(${otherBox[breakpoint].x * snapX}px, ${(selectedBox[breakpoint].y + selectedBox[breakpoint].h) * snapY}px)`
+  //   //   }
+  //   // }
+  //
+  //   return updateBoxes
+  // }
 
   renderBoxes = () => {
     this.setState({
